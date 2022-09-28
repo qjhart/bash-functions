@@ -17,15 +17,24 @@
 # @exitcode 1 On errors
 #
 function bash_functions.import () {
-  local path=${BASH_FUNCTIONS} || $(dirname $0)/../lib/$(basename $0)
-  local fn=${path}/$1.sh
-  if [[ -f $fn ]] ; then
-    source $fn;
-    $1.import
+  local path
+  if [[ -d $1 ]]; then
+    path=$1;
+    shift;
   else
-    >&2 echo "bash_functions.import: $fn not found"
-    return 1
+    path="$(dirname $0)/../lib/$(basename $0)"
   fi
+  while [[ -n "$1" ]]; do
+    local fn=${path}/$1.sh
+    if [[ -f $fn ]] ; then
+      source $fn;
+      $1.import
+    else
+      >&2 echo "bash_functions.import: $fn not found"
+      return 1
+    fi
+    shift
+  done
 }
 
 if [[ -z ${bash_functions_no_info} ]]; then
